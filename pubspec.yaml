@@ -14,6 +14,8 @@ dependencies:
   hive_flutter: ^1.1.0
   go_router: ^13.1.0
   uuid: ^4.2.2
+  receive_sharing_intent: ^1.5.0
+  webview_flutter: ^4.4.0
 
 dev_dependencies:
   flutter_test:
@@ -21,6 +23,18 @@ dev_dependencies:
   flutter_lints: ^3.0.1
   hive_generator: ^2.0.1
   build_runner: ^2.4.8
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/icon.png
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#121833"
+  adaptive_icon_foreground: "assets/icon.png"

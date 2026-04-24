@@ -165,7 +165,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         isThreeLine: link.tags.isNotEmpty,
                         onTap: () {
-                          // Could navigate to detail screen in future
+                          context.push('/webview?url=${Uri.encodeComponent(link.url)}&title=${Uri.encodeComponent(link.title)}');
                         },
                       ),
                     );

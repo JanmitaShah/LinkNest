@@ -8,7 +8,9 @@ import '../providers/links_provider.dart';
 
 /// Screen for adding a new link
 class AddLinkScreen extends ConsumerStatefulWidget {
-  const AddLinkScreen({super.key});
+  final String? initialUrl;
+
+  const AddLinkScreen({super.key, this.initialUrl});
 
   @override
   ConsumerState<AddLinkScreen> createState() => _AddLinkScreenState();
@@ -20,9 +22,18 @@ class _AddLinkScreenState extends ConsumerState<AddLinkScreen> {
   final _titleController = TextEditingController();
   final _notesController = TextEditingController();
   final _tagsController = TextEditingController();
-  
+
   String _selectedCategoryId = 'other';
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill URL if provided
+    if (widget.initialUrl != null && widget.initialUrl!.isNotEmpty) {
+      _urlController.text = widget.initialUrl!;
+    }
+  }
 
   @override
   void dispose() {
