@@ -9,11 +9,14 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
+  late AnimationController _pulseController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<double> _rotationAnimation;
+  late Animation<double> _glowAnimation;
+  late Animation<double> _pulseAnimation;
 
   @override
   void initState() {
@@ -21,10 +24,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1800),
+      duration: const Duration(milliseconds: 2000),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
@@ -34,21 +42,38 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.2, 0.5, curve: Curves.easeIn),
+        curve: const Interval(0.1, 0.4, curve: Curves.easeIn),
       ),
     );
 
-    _rotationAnimation = Tween<double>(begin: -0.1, end: 0.0).animate(
+    _rotationAnimation = Tween<double>(begin: -0.15, end: 0.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: const Interval(0.3, 0.7, curve: Curves.easeOutBack),
+        curve: const Interval(0.4, 0.8, curve: Curves.easeOutBack),
       ),
     );
 
-    _animationController.forward();
+    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
+    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(
+        parent: _pulseController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _animationController.forward().then((_) {
+      _pulseController.repeat(reverse: true);
+    });
 
     // Navigate to home screen after animation
-    Timer(const Duration(milliseconds: 2500), () {
+    Timer(const Duration(milliseconds: 2800), () {
+      _pulseController.stop();
       if (mounted) {
         context.go('/');
       }
@@ -58,6 +83,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void dispose() {
     _animationController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -78,40 +104,55 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           ),
         ),
         child: Center(
-          child: AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              return Transform.scale(
-                scale: _scaleAnimation.value,
-                child: Opacity(
-                  opacity: _fadeAnimation.value,
-                  child: Transform.rotate(
-                    angle: _rotationAnimation.value,
-                    child: child,
+            child: AnimatedBuilder(
+              animation: Listenable.merge([_animationController, _pulseController]),
+              builder: (context, child) {
+                final double pulseScale = _pulseController.isAnimating
+                    ? _pulseAnimation.value
+                    : 1.0;
+                
+                return Transform.scale(
+                  scale: _scaleAnimation.value * pulseScale,
+                  child: Opacity(
+                    opacity: _fadeAnimation.value,
+                    child: Transform.rotate(
+                      angle: _rotationAnimation.value,
+                      child: child,
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // App Icon with Glow Effect
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(32),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF6C5CE7).withOpacity(0.4),
-                        blurRadius: 40,
-                        spreadRadius: 8,
-                      ),
-                      BoxShadow(
-                        color: const Color(0xFF6C5CE7).withOpacity(0.2),
-                        blurRadius: 80,
-                        spreadRadius: 16,
-                      ),
-                    ],
-                  ),
+                  AnimatedBuilder(
+                    animation: _glowAnimation,
+                    builder: (context, child) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(32),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF6C5CE7).withOpacity(0.4 * _glowAnimation.value),
+                              blurRadius: 40,
+                              spreadRadius: 8,
+                            ),
+                            BoxShadow(
+                              color: const Color(0xFF6C5CE7).withOpacity(0.2 * _glowAnimation.value),
+                              blurRadius: 80,
+                              spreadRadius: 16,
+                            ),
+                            BoxShadow(
+                              color: const Color(0xFFA29BFE).withOpacity(0.1 * _glowAnimation.value),
+                              blurRadius: 120,
+                              spreadRadius: 24,
+                            ),
+                          ],
+                        ),
+                        child: child,
+                      );
+                    },
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(32),
                     child: Image.asset(
@@ -131,7 +172,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     ],
                   ).createShader(bounds),
                   child: const Text(
-                    'LinkNest',
+                     'LinkStore',
                     style: TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.w700,

@@ -1,4 +1,4 @@
-name: link_nest
+name: linkstore
 description: A personal link manager app to save and organize video links.
 publish_to: 'none'
 version: 1.0.0+1
@@ -16,6 +16,7 @@ dependencies:
   uuid: ^4.2.2
   receive_sharing_intent: ^1.5.0
   webview_flutter: ^4.4.0
+  google_mobile_ads: ^5.2.0
 
 dev_dependencies:
   flutter_test:

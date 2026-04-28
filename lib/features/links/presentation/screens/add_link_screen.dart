@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import '../../../categories/domain/category_entity.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
 import '../../domain/link_entity.dart';
 import '../providers/links_provider.dart';
 
@@ -91,9 +92,8 @@ class _AddLinkScreenState extends ConsumerState<AddLinkScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Link'),
-        centerTitle: true,
+      appBar: const GradientAppBar(
+        title: 'Add Link',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -145,7 +145,7 @@ class _AddLinkScreenState extends ConsumerState<AddLinkScreen> {
 
               // Category Dropdown
               DropdownButtonFormField<String>(
-                initialValue: _selectedCategoryId,
+                value: _selectedCategoryId,
                 decoration: const InputDecoration(
                   labelText: 'Category',
                   border: OutlineInputBorder(),

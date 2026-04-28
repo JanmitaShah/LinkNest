@@ -33,3 +33,14 @@ class SearchLinksUseCase {
     return await _repository.searchLinks(query);
   }
 }
+
+/// Use case for deleting a link
+class DeleteLinkUseCase {
+  final LinkRepository _repository;
+
+  DeleteLinkUseCase(this._repository);
+
+  Future<void> call(String linkId) async {
+    await _repository.deleteLink(linkId);
+  }
+}

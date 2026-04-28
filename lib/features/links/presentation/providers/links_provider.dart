@@ -34,19 +34,28 @@ final searchLinksUseCaseProvider = Provider<SearchLinksUseCase>((ref) {
   return SearchLinksUseCase(repository);
 });
 
+/// Provider for delete link use case
+final deleteLinkUseCaseProvider = Provider<DeleteLinkUseCase>((ref) {
+  final repository = ref.watch(linkRepositoryProvider);
+  return DeleteLinkUseCase(repository);
+});
+
 /// State notifier for managing links list
 class LinksNotifier extends StateNotifier<AsyncValue<List<LinkEntity>>> {
   final GetAllLinksUseCase _getAllLinksUseCase;
   final SearchLinksUseCase _searchLinksUseCase;
   final AddLinkUseCase _addLinkUseCase;
+  final DeleteLinkUseCase _deleteLinkUseCase;
 
   LinksNotifier({
     required GetAllLinksUseCase getAllLinksUseCase,
     required SearchLinksUseCase searchLinksUseCase,
     required AddLinkUseCase addLinkUseCase,
+    required DeleteLinkUseCase deleteLinkUseCase,
   })  : _getAllLinksUseCase = getAllLinksUseCase,
         _searchLinksUseCase = searchLinksUseCase,
         _addLinkUseCase = addLinkUseCase,
+        _deleteLinkUseCase = deleteLinkUseCase,
         super(const AsyncValue.loading()) {
     loadLinks();
   }
@@ -82,6 +91,16 @@ class LinksNotifier extends StateNotifier<AsyncValue<List<LinkEntity>>> {
       state = AsyncValue.error(e, st);
     }
   }
+
+  /// Delete a link
+  Future<void> deleteLink(String linkId) async {
+    try {
+      await _deleteLinkUseCase(linkId);
+      await loadLinks();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
 }
 
 /// Provider for links state notifier
@@ -91,6 +110,7 @@ final linksNotifierProvider =
     getAllLinksUseCase: ref.watch(getAllLinksUseCaseProvider),
     searchLinksUseCase: ref.watch(searchLinksUseCaseProvider),
     addLinkUseCase: ref.watch(addLinkUseCaseProvider),
+    deleteLinkUseCase: ref.watch(deleteLinkUseCaseProvider),
   );
 });
 

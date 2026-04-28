@@ -10,4 +10,7 @@ abstract class LinkRepository {
 
   /// Search links by query (searches in title, tags, notes)
   Future<List<LinkEntity>> searchLinks(String query);
+
+  /// Delete a link
+  Future<void> deleteLink(String linkId);
 }

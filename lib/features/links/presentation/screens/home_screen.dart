@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../categories/domain/category_entity.dart';
+import '../../../../core/widgets/gradient_app_bar.dart';
+import '../../../../core/widgets/banner_ad_widget.dart';
 import '../providers/links_provider.dart';
 
 /// Home screen displaying list of saved links with search functionality
@@ -35,12 +37,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final linksAsync = ref.watch(linksNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('LinkNest'),
-        centerTitle: true,
+      appBar: const GradientAppBar(
+        title: 'LinkStore',
       ),
       body: Column(
         children: [
+          const BannerAdWidget(),
           // Search bar
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -119,12 +121,55 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   itemBuilder: (context, index) {
                     final link = links[index];
                     final category = PredefinedCategories.getById(link.categoryId);
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+                    return Dismissible(
+                      key: Key(link.id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 20),
+                        child: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        ),
                       ),
-                      child: ListTile(
+                      confirmDismiss: (direction) async {
+                        return await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Confirm Delete'),
+                              content: const Text('Are you sure you want to delete this link?'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      onDismissed: (direction) {
+                        ref.read(linksNotifierProvider.notifier).deleteLink(link.id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('"${link.title}" deleted'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: ListTile(
                         leading: CircleAvatar(
                           child: Text(category.icon),
                         ),
@@ -167,6 +212,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         onTap: () {
                           context.push('/webview?url=${Uri.encodeComponent(link.url)}&title=${Uri.encodeComponent(link.title)}');
                         },
+                      ),
                       ),
                     );
                   },

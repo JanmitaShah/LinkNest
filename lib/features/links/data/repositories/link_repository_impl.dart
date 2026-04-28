@@ -33,4 +33,9 @@ class LinkRepositoryImpl implements LinkRepository {
     models.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return models.map((model) => model.toEntity()).toList();
   }
+
+  @override
+  Future<void> deleteLink(String linkId) async {
+    await _localDataSource.deleteLink(linkId);
+  }
 }

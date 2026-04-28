@@ -37,4 +37,10 @@ class LinkLocalDataSource {
       return titleMatch || notesMatch || tagsMatch;
     }).toList();
   }
+
+  /// Delete a link from local storage
+  Future<void> deleteLink(String linkId) async {
+    final linkBox = await box;
+    await linkBox.delete(linkId);
+  }
 }

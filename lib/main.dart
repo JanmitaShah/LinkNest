@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'core/config/ad_config.dart';
 import 'core/constants/hive_constants.dart';
 import 'core/router/app_router.dart';
 import 'core/services/share_intent_service.dart';
@@ -27,6 +28,9 @@ void main() async {
   final shareIntentService = ShareIntentService();
   await shareIntentService.initialize();
 
+  // Initialize Ads
+  await AdManager.initialize();
+
   // Create router
   final router = createAppRouter();
 
@@ -35,7 +39,7 @@ void main() async {
       child: _ShareIntentListener(
         service: shareIntentService,
         router: router,
-        child: LinkNestApp(router: router),
+        child: LinkStoreApp(router: router),
       ),
     ),
   );
@@ -94,9 +98,9 @@ class _ShareIntentListenerState extends State<_ShareIntentListener> {
   }
 }
 
-class LinkNestApp extends StatelessWidget {
+class LinkStoreApp extends StatelessWidget {
   final GoRouter router;
-  const LinkNestApp({super.key, required this.router});
+  const LinkStoreApp({super.key, required this.router});
 
   @override
   Widget build(BuildContext context) {
@@ -109,9 +113,14 @@ class LinkNestApp extends StatelessWidget {
     const Color surface = Colors.white;
     const Color textPrimary = Color(0xFF2D3436);
     const Color textSecondary = Color(0xFF636E72);
+    
+    // Gradient Colors for AppBar matching the logo
+    const Color appBarGradientStart = Color(0xFF00D9FF); // Cyan from logo
+    const Color appBarGradientEnd = Color(0xFF9D50FF);   // Purple from logo
+    const Color appBarBackground = Color(0xFF12183D);    // Dark navy background from logo
 
     return MaterialApp.router(
-      title: 'LinkNest',
+      title: 'LinkStore',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -134,13 +143,14 @@ class LinkNestApp extends StatelessWidget {
           elevation: 0,
           scrolledUnderElevation: 2,
           backgroundColor: Colors.transparent,
-          foregroundColor: textPrimary,
+          foregroundColor: Colors.white,
           titleTextStyle: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: textPrimary,
+            color: Colors.white,
             letterSpacing: -0.3,
           ),
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
 
         // Card Theme
